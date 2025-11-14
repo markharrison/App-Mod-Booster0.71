@@ -1,3 +1,5 @@
+when starting the task create a plan of what you will do and detail it with a list of checkboxes in the pull request you create and include a final taks called "Completed all tasks" which you only tick when all your work and testing is done
+
 make sure to create one summary script to deploy any infrastructure as code and also an instruction to deploy that summary script in one line in the terminal (assuming all variables in the other scripts have been set)
 
 if other parts of my instruction ask for scripts try to combine them sensibly into this summary so the output has separate IaC files for each service deployed to azure plus the summary script calling them all 
