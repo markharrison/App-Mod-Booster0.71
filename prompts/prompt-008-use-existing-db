@@ -1,5 +1,6 @@
 use the SQL database found at the below connection for the APIs:
 
-Server=tcp:sql-expense-mgmt-xyz.database.windows.net,1433;Initial Catalog=ExpenseManagementDB;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";
+Server=tcp:sql-expense-mgmt-xyz.database.windows.net,1433;Initial Catalog=ExpenseManagementDB;Encrypt=True;
+TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";
 
 error handle so that the interface returns dummy data if there are issues connecting to database
