@@ -1,4 +1,5 @@
-create a python file called run-sql with the contents below, changing the server and database variables at the top to those created earlier in the process.
+create a python file called run-sql with the contents below, 
+changing the server and database variables at the top to those created earlier in the process.
 If you were not asked to create them then leave them as is.
 
 bear in mind making it work on Mac as well:
@@ -42,8 +43,8 @@ import struct
 from azure.identity import AzureCliCredential
 
 # Database connection settings
-SERVER = "sql-expense-mgmt-xyz.database.windows.net"
-DATABASE = "ExpenseManagementDB"
+SERVER = "example.database.windows.net"
+DATABASE = "database_name"
 SQL_SCRIPT_FILE = "script.sql"
 
 def get_access_token():
