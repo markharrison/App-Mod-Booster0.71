@@ -15,4 +15,4 @@ Then create a plan for the work and detail the plan as check box items in the pu
 
 Also include a checkbox for "Completed all work" which you will not check until you have finished working. Then complete all the tasks and finally check the last box.
 
-Use Azure best practice found here: www.microsoft.com
+Use Azure best practice found here: https://learn.microsoft.com/en-us/azure/architecture/best-practices/index-best-practices
