@@ -1,0 +1,19 @@
+When creating Azure SQL Database Bicep templates:
+
+1. **Use stable API versions** - Always use GA (generally available) API versions like `@2021-11-01` instead of preview versions like `@2023-05-01-preview`. Preview versions often lack complete type definitions in Bicep, causing validation errors.
+
+2. **Use the `parent` property for child resources** - For child resources like databases, administrators, firewall rules, and authentication settings, use the `parent` property to establish the relationship:
+   ```bicep
+   resource database 'Microsoft.Sql/servers/databases@2021-11-01' = {
+     parent: sqlServer
+     name: 'DatabaseName'
+     ...
+   }
+
+This is cleaner than using the concatenated name format '${sqlServer.name}/DatabaseName'.
+
+Avoid unused parameters - Remove any parameters that are declared but not used in the template to prevent linter warnings.
+
+API version consistency - Use the same stable API version across all related SQL resources (servers, databases, administrators, firewall rules, authentication) for consistency and compatibility.
+
+Check type availability - If Bicep warns that a resource type "does not have types available", it's a sign you're using a preview API version. Switch to the latest stable version.
