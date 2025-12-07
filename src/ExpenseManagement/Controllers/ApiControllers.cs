@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ExpenseManagement.Models;
 using ExpenseManagement.Services;
+using OpenAI.Chat;
 
 namespace ExpenseManagement.Controllers;
 

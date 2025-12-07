@@ -137,10 +137,14 @@
         }
 
         function formatMessage(text) {
-            // First escape HTML
+            // XSS Safety: First escape ALL HTML to neutralize any potential injection
+            // This converts <, >, & to HTML entities, making any script tags harmless
             let formatted = escapeHtml(text);
             
-            // Then apply markdown-style formatting
+            // Then apply safe markdown-style formatting using simple regex replacements
+            // These replacements only add specific, safe HTML tags and cannot introduce script injection
+            // because the content has already been escaped
+            
             // Bold text
             formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
             

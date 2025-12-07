@@ -235,79 +235,120 @@ public class ChatService
             {
                 case "get_expenses":
                     {
-                        var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
-                        string? status = args != null && args.ContainsKey("status") 
-                            ? args["status"].GetString() 
-                            : null;
+                        try
+                        {
+                            var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
+                            string? status = args != null && args.ContainsKey("status") 
+                                ? args["status"].GetString() 
+                                : null;
 
-                        var expenses = string.IsNullOrEmpty(status)
-                            ? await _expenseService.GetAllExpensesAsync()
-                            : await _expenseService.GetExpensesByStatusAsync(status);
+                            var expenses = string.IsNullOrEmpty(status)
+                                ? await _expenseService.GetAllExpensesAsync()
+                                : await _expenseService.GetExpensesByStatusAsync(status);
 
-                        return JsonSerializer.Serialize(expenses);
+                            return JsonSerializer.Serialize(expenses);
+                        }
+                        catch (JsonException ex)
+                        {
+                            _logger.LogError(ex, "Error parsing JSON for get_expenses");
+                            return JsonSerializer.Serialize(new { error = "Invalid JSON format" });
+                        }
                     }
 
                 case "get_expense_by_id":
                     {
-                        var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
-                        if (args == null || !args.ContainsKey("expenseId"))
-                            return JsonSerializer.Serialize(new { error = "expenseId is required" });
+                        try
+                        {
+                            var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
+                            if (args == null || !args.ContainsKey("expenseId"))
+                                return JsonSerializer.Serialize(new { error = "expenseId is required" });
 
-                        var expenseId = args["expenseId"].GetInt32();
-                        var expense = await _expenseService.GetExpenseByIdAsync(expenseId);
+                            var expenseId = args["expenseId"].GetInt32();
+                            var expense = await _expenseService.GetExpenseByIdAsync(expenseId);
 
-                        if (expense == null)
-                            return JsonSerializer.Serialize(new { error = "Expense not found" });
+                            if (expense == null)
+                                return JsonSerializer.Serialize(new { error = "Expense not found" });
 
-                        return JsonSerializer.Serialize(expense);
+                            return JsonSerializer.Serialize(expense);
+                        }
+                        catch (JsonException ex)
+                        {
+                            _logger.LogError(ex, "Error parsing JSON for get_expense_by_id");
+                            return JsonSerializer.Serialize(new { error = "Invalid JSON format" });
+                        }
                     }
 
                 case "create_expense":
                     {
-                        var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
-                        if (args == null)
-                            return JsonSerializer.Serialize(new { error = "Invalid arguments" });
-
-                        var userId = args.ContainsKey("userId") ? args["userId"].GetInt32() : 1;
-                        var categoryId = args["categoryId"].GetInt32();
-                        var amount = args["amount"].GetDouble();
-                        var amountMinor = (int)(amount * 100); // Convert to minor units
-                        var currency = args["currency"].GetString() ?? "GBP";
-                        var expenseDateStr = args["expenseDate"].GetString() ?? DateTime.Now.ToString("yyyy-MM-dd");
-                        var expenseDate = DateTime.Parse(expenseDateStr);
-                        var description = args["description"].GetString() ?? "";
-
-                        var expense = new Expense
+                        try
                         {
-                            UserId = userId,
-                            CategoryId = categoryId,
-                            StatusId = 1, // Draft
-                            AmountMinor = amountMinor,
-                            Currency = currency,
-                            ExpenseDate = expenseDate,
-                            Description = description
-                        };
+                            var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
+                            if (args == null)
+                                return JsonSerializer.Serialize(new { error = "Invalid arguments" });
 
-                        var createdExpense = await _expenseService.CreateExpenseAsync(expense);
-                        return JsonSerializer.Serialize(createdExpense);
+                            var userId = args.ContainsKey("userId") ? args["userId"].GetInt32() : 1;
+                            var categoryId = args["categoryId"].GetInt32();
+                            var amount = args["amount"].GetDouble();
+                            var amountMinor = (int)(amount * 100); // Convert to minor units
+                            var currency = args["currency"].GetString() ?? "GBP";
+                            var expenseDateStr = args["expenseDate"].GetString() ?? DateTime.Now.ToString("yyyy-MM-dd");
+                            
+                            // Use TryParseExact with specific format for reliable parsing
+                            if (!DateTime.TryParseExact(expenseDateStr, "yyyy-MM-dd", 
+                                System.Globalization.CultureInfo.InvariantCulture, 
+                                System.Globalization.DateTimeStyles.None, 
+                                out var expenseDate))
+                            {
+                                return JsonSerializer.Serialize(new { error = "Invalid date format. Use yyyy-MM-dd" });
+                            }
+                            
+                            var description = args["description"].GetString() ?? "";
+
+                            var expense = new Expense
+                            {
+                                UserId = userId,
+                                CategoryId = categoryId,
+                                StatusId = 1, // Draft
+                                AmountMinor = amountMinor,
+                                Currency = currency,
+                                ExpenseDate = expenseDate,
+                                Description = description
+                            };
+
+                            var createdExpense = await _expenseService.CreateExpenseAsync(expense);
+                            return JsonSerializer.Serialize(createdExpense);
+                        }
+                        catch (JsonException ex)
+                        {
+                            _logger.LogError(ex, "Error parsing JSON for create_expense");
+                            return JsonSerializer.Serialize(new { error = "Invalid JSON format" });
+                        }
                     }
 
                 case "update_expense_status":
                     {
-                        var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
-                        if (args == null)
-                            return JsonSerializer.Serialize(new { error = "Invalid arguments" });
+                        try
+                        {
+                            var args = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(argumentsJson);
+                            if (args == null)
+                                return JsonSerializer.Serialize(new { error = "Invalid arguments" });
 
-                        var expenseId = args["expenseId"].GetInt32();
-                        var status = args["status"].GetString() ?? "Submitted";
-                        var reviewedBy = args.ContainsKey("reviewedBy") ? args["reviewedBy"].GetInt32() : 1;
+                            var expenseId = args["expenseId"].GetInt32();
+                            var status = args["status"].GetString() ?? "Submitted";
+                            var reviewedBy = args.ContainsKey("reviewedBy") ? args["reviewedBy"].GetInt32() : 1;
 
-                        var expense = await _expenseService.UpdateExpenseStatusAsync(expenseId, status, reviewedBy);
+                            var expense = await _expenseService.UpdateExpenseStatusAsync(expenseId, status, reviewedBy);
 
-                        if (expense == null)
-                            return JsonSerializer.Serialize(new { error = "Failed to update expense" });
+                            if (expense == null)
+                                return JsonSerializer.Serialize(new { error = "Failed to update expense" });
 
-                        return JsonSerializer.Serialize(expense);
+                            return JsonSerializer.Serialize(expense);
+                        }
+                        catch (JsonException ex)
+                        {
+                            _logger.LogError(ex, "Error parsing JSON for update_expense_status");
+                            return JsonSerializer.Serialize(new { error = "Invalid JSON format" });
+                        }
                     }
 
                 default:
