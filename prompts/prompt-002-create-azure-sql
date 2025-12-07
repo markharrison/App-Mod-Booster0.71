@@ -23,10 +23,15 @@ Configure the person deploying as the SQL server administrator:
 
 ### Managed Identity Access
 
-The managed identity created earlier needs database access:
+The managed identity created earlier needs database access. The deployment script handles this automatically by creating a database user for the managed identity and granting these database-level permissions:
 
-- Grant it permissions to connect and manage databases
-- Assign the ##MS_DatabaseManager## server role
+- db_datareader role (read access)
+- db_datawriter role (write access)  
+- EXECUTE permission (for stored procedures)
+
+Do NOT use server-level roles like ##MS_DatabaseManager## as the managed identity only needs database-level access.
+
+See also: prompt-016-sqlcmd-for-sql for the SID-based user creation approach.
 
 ## Database Configuration
 

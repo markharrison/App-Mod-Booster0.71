@@ -1,8 +1,12 @@
 When starting this task, create a plan with checkboxes in the pull request you create. Include a final task called "Completed all tasks" that you only tick when everything is done and tested.
 
+## Overview
+
+This project uses a two-phase deployment approach that separates infrastructure provisioning from application deployment. This separation allows teams to manage infrastructure and application lifecycles independently, which is essential for production environments.
+
 ## Deployment Structure
 
-Create TWO separate deployment workflows:
+Create TWO separate deployment workflows, plus an optional unified script for convenience:
 
 ### 1. Infrastructure Deployment (deploy-infra/)
 
@@ -26,6 +30,10 @@ This deploys the actual application and assumes infrastructure already exists:
 - Provide Azure CLI or PowerShell commands to deploy the code
 - Document everything in `deploy-app/README.md`
 
+### 3. Unified Deployment Script (Optional)
+
+For convenience, also create a `deploy-all.ps1` script in the repository root that orchestrates both deployments with a single command. This script should call the individual scripts in sequence rather than duplicating logic. See prompt-029-unified-deployment-script for details.
+
 ### Important Guidelines
 
 - Do NOT create .sh shell scripts - use PowerShell-compatible commands
@@ -34,3 +42,5 @@ This deploys the actual application and assumes infrastructure already exists:
 - Provide clear variable setup instructions at the top of each README
 
 Refer to the screenshots in the repository and the database schema to ensure all APIs and functionality match the original application.
+
+See also: prompt-027-deployment-script for infrastructure script details, prompt-005-deploy-app-code for application deployment.

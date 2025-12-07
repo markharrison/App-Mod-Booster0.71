@@ -13,8 +13,8 @@ param sqlServerName string
 @description('SQL Database name')
 param sqlDatabaseName string
 
-@description('App Service name')
-param appServiceName string
+@description('App Service name (optional - diagnostics configured separately)')
+param appServiceName string = ''
 
 // Generate lowercase names for resources
 var logAnalyticsWorkspaceName = toLower('law-${baseName}-${uniqueSuffix}')
@@ -107,13 +107,13 @@ resource databaseDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-p
   }
 }
 
-// Reference existing App Service
-resource appService 'Microsoft.Web/sites@2023-01-01' existing = {
+// Reference existing App Service (only if name provided)
+resource appService 'Microsoft.Web/sites@2023-01-01' existing = if (!empty(appServiceName)) {
   name: appServiceName
 }
 
-// Configure diagnostic settings for App Service
-resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+// Configure diagnostic settings for App Service (only if name provided)
+resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(appServiceName)) {
   scope: appService
   name: 'AppServiceDiagnostics'
   properties: {
@@ -151,6 +151,7 @@ resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01
 
 // Output monitoring details
 output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.id
+output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.name
 output appInsightsId string = applicationInsights.id
 output appInsightsConnectionString string = applicationInsights.properties.ConnectionString
 output appInsightsInstrumentationKey string = applicationInsights.properties.InstrumentationKey

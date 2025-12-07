@@ -261,10 +261,22 @@ GRANT EXECUTE TO [$managedIdentityName];
 "@
     
     try {
-        $createUserSql | sqlcmd -S $sqlServerFqdn -d $databaseName "--authentication-method=$authMethod"
+        # Write SQL to temp file to avoid go-sqlcmd piping issues
+        $tempSqlFile = [System.IO.Path]::GetTempFileName() + ".sql"
+        $createUserSql | Out-File -FilePath $tempSqlFile -Encoding UTF8
+        
+        sqlcmd -S $sqlServerFqdn -d $databaseName "--authentication-method=$authMethod" -i $tempSqlFile
+        
+        # Clean up temp file
+        Remove-Item -Path $tempSqlFile -Force -ErrorAction SilentlyContinue
+        
         Write-Host "✓ Managed identity database user created" -ForegroundColor Green
     }
     catch {
+        # Clean up temp file on error
+        if (Test-Path $tempSqlFile) {
+            Remove-Item -Path $tempSqlFile -Force -ErrorAction SilentlyContinue
+        }
         Write-Error "Failed to create managed identity database user: $_"
         exit 1
     }

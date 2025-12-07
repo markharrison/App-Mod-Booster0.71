@@ -2,6 +2,12 @@ Create a user-assigned managed identity for the application to use when connecti
 
 Name it something like mid-AppModAssist-[timestamp] where the timestamp makes it unique (e.g., including day, hour, and minute).
 
+**Important:** The timestamp should be passed as a parameter to this module. The main.bicep should define the timestamp as a PARAMETER with a default value (not a variable):
+
+    param timestamp string = utcNow('yyyyMMddHHmm')
+
+This is because `utcNow()` can only be used as a parameter default value in Bicep, not in variable declarations. Using `var timestamp = utcNow(...)` will cause a BCP065 error.
+
 This identity will be assigned to the App Service so it can authenticate to Azure SQL without storing any passwords or connection secrets.
 
 Note: With user-assigned managed identities, the principalId isn't directly on the identity object - it's nested under properties. Be careful when trying to output this value in Bicep.

@@ -37,10 +37,18 @@ Critical implementation details:
 1. When calling sqlcmd from PowerShell, quote the authentication argument to prevent parsing errors:
    sqlcmd -S $serverFqdn -d "Northwind" "--authentication-method=ActiveDirectoryDefault" -i $schemaFile
 
-2. Always use fresh resource group names for deployments. Reusing resource groups with partially deployed resources can cause ARM caching issues, particularly with Log Analytics Workspace references.
+2. Never pipe SQL directly to sqlcmd as this causes go-sqlcmd to crash with nil pointer errors. Always write SQL to a temporary file first:
+   $tempFile = [System.IO.Path]::GetTempFileName() + ".sql"
+   $sql | Out-File -FilePath $tempFile -Encoding UTF8
+   sqlcmd -S $server -d $database -i $tempFile
+   Remove-Item -Path $tempFile -Force
 
-3. The script should warn users if they're running PowerShell 5.1 and recommend upgrading to PowerShell 7+.
+3. Always use fresh resource group names for deployments. Reusing resource groups with partially deployed resources can cause ARM caching issues, particularly with Log Analytics Workspace references.
 
-4. VS Code's integrated terminal may use a cached PATH. If sqlcmd errors occur, recommend running from a standalone PowerShell terminal or restarting VS Code.
+4. The script should warn users if they're running PowerShell 5.1 and recommend upgrading to PowerShell 7+.
+
+5. VS Code's integrated terminal may use a cached PATH. If sqlcmd errors occur, recommend running from a standalone PowerShell terminal or restarting VS Code.
+
+See also: prompt-016-sqlcmd-for-sql for detailed sqlcmd usage, prompt-028-github-actions-cicd for CI/CD considerations.
 
 Prerequisites: Azure CLI, go-sqlcmd (install with winget install sqlcmd), and PowerShell 7+ recommended.

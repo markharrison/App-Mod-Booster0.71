@@ -31,6 +31,23 @@ $sidHex = "0x" + [System.BitConverter]::ToString($guidBytes).Replace("-", "")
 sqlcmd ... -Q "CREATE USER [$name] WITH SID = $sidHex, TYPE = E;"
 ```
 
+### Avoid Piping SQL to sqlcmd
+
+Do NOT pipe SQL strings directly to sqlcmd as this can cause go-sqlcmd to crash with nil pointer dereference errors:
+
+```powershell
+# BAD - can cause go-sqlcmd panic/crash
+$sql | sqlcmd -S $server -d $database ...
+
+# GOOD - write to temp file and use -i flag
+$tempFile = [System.IO.Path]::GetTempFileName() + ".sql"
+$sql | Out-File -FilePath $tempFile -Encoding UTF8
+sqlcmd -S $server -d $database -i $tempFile
+Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
+```
+
+This is a known issue with go-sqlcmd when processing piped multi-line input.
+
 ### Critical PowerShell Syntax Note
 
 When calling sqlcmd from PowerShell, the --authentication-method argument must be quoted to prevent PowerShell from misinterpreting the double-dash:

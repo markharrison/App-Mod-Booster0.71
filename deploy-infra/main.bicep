@@ -17,9 +17,11 @@ param adminPrincipalType string = 'User'
 @description('Deploy GenAI resources (Azure OpenAI and AI Search)')
 param deployGenAI bool = false
 
+@description('Timestamp for unique naming (defaults to deployment time)')
+param timestamp string = utcNow('yyyyMMddHHmm')
+
 // Generate unique suffix for resource names
 var uniqueSuffix = uniqueString(resourceGroup().id)
-var timestamp = utcNow('yyyyMMddHHmm')
 
 // Deploy managed identity first (needed by other resources)
 module managedIdentity 'modules/managed-identity.bicep' = {
@@ -31,7 +33,7 @@ module managedIdentity 'modules/managed-identity.bicep' = {
   }
 }
 
-// Deploy monitoring resources
+// Deploy monitoring resources (without App Service diagnostics first)
 module monitoring 'modules/monitoring.bicep' = {
   name: 'monitoring-deployment'
   params: {
@@ -40,12 +42,8 @@ module monitoring 'modules/monitoring.bicep' = {
     uniqueSuffix: uniqueSuffix
     sqlServerName: azureSQL.outputs.sqlServerName
     sqlDatabaseName: azureSQL.outputs.databaseName
-    appServiceName: appService.outputs.webAppName
+    appServiceName: ''  // Will configure App Service diagnostics separately
   }
-  dependsOn: [
-    azureSQL
-    appService
-  ]
 }
 
 // Deploy App Service with managed identity
@@ -58,6 +56,15 @@ module appService 'modules/app-service.bicep' = {
     managedIdentityId: managedIdentity.outputs.managedIdentityId
     managedIdentityClientId: managedIdentity.outputs.managedIdentityClientId
     appInsightsConnectionString: monitoring.outputs.appInsightsConnectionString
+  }
+}
+
+// Deploy App Service diagnostics after App Service is created
+module appServiceDiagnostics 'modules/app-service-diagnostics.bicep' = {
+  name: 'appServiceDiagnostics-deployment'
+  params: {
+    appServiceName: appService.outputs.webAppName
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceId
   }
 }
 
@@ -99,9 +106,9 @@ output managedIdentityClientId string = managedIdentity.outputs.managedIdentityC
 output managedIdentityPrincipalId string = managedIdentity.outputs.managedIdentityPrincipalId
 output appInsightsConnectionString string = monitoring.outputs.appInsightsConnectionString
 
-// Conditional GenAI outputs (use null-safe operators)
-output openAIEndpoint string = deployGenAI ? genAI.outputs.openAIEndpoint : ''
-output openAIModelName string = deployGenAI ? genAI.outputs.openAIModelName : ''
-output openAIName string = deployGenAI ? genAI.outputs.openAIName : ''
-output searchEndpoint string = deployGenAI ? genAI.outputs.searchEndpoint : ''
-output searchName string = deployGenAI ? genAI.outputs.searchName : ''
+// Conditional GenAI outputs
+output openAIEndpoint string = deployGenAI && genAI != null ? genAI.outputs.openAIEndpoint : ''
+output openAIModelName string = deployGenAI && genAI != null ? genAI.outputs.openAIModelName : ''
+output openAIName string = deployGenAI && genAI != null ? genAI.outputs.openAIName : ''
+output searchEndpoint string = deployGenAI && genAI != null ? genAI.outputs.searchEndpoint : ''
+output searchName string = deployGenAI && genAI != null ? genAI.outputs.searchName : ''

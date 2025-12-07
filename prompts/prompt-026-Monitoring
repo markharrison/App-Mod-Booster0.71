@@ -20,3 +20,16 @@ For Azure SQL Database:
 - Errors, timeouts, blocks, and deadlocks
 
 Important: Only configure diagnostics at the SQL Database level, not the SQL Server level. Trying to enable categories like SQLSecurityAuditEvents or DevOpsOperationsAudit at the server level will cause deployment failures because these aren't supported there.
+
+**Avoiding Circular Dependencies:**
+
+The monitoring module creates a circular dependency if it tries to configure App Service diagnostics while the App Service module depends on Application Insights.
+
+To fix this:
+
+1. Make the `appServiceName` parameter optional with a default empty string
+2. Use conditional resource deployment for App Service references: `if (!empty(appServiceName))`
+3. Create a separate `app-service-diagnostics.bicep` module that deploys AFTER both monitoring and App Service
+4. The main.bicep should deploy monitoring first (without App Service diagnostics), then App Service, then App Service diagnostics
+
+The monitoring module should output `logAnalyticsWorkspaceId` so the separate diagnostics module can reference it.

@@ -52,15 +52,27 @@ az login
 az account set --subscription "Your Subscription Name"
 ```
 
-### Step 3: Deploy Infrastructure
+### Step 3: Deploy Everything (Single Command)
+
+The easiest way to deploy is with the unified deployment script:
 
 ```powershell
-.\deploy-infra\deploy.ps1 -ResourceGroup "rg-expensemgmt-20241206" -Location "uksouth"
+.\deploy-all.ps1 -ResourceGroup "rg-expensemgmt-20251206" -Location "uksouth"
 ```
 
 **With GenAI (Optional)**:
 ```powershell
-.\deploy-infra\deploy.ps1 -ResourceGroup "rg-expensemgmt-20241206" -Location "uksouth" -DeployGenAI
+.\deploy-all.ps1 -ResourceGroup "rg-expensemgmt-20251206" -Location "uksouth" -DeployGenAI
+```
+
+This deploys infrastructure and application in one step. For more control, you can deploy them separately (see below).
+
+### Alternative: Deploy Separately
+
+#### Step 3a: Deploy Infrastructure
+
+```powershell
+.\deploy-infra\deploy.ps1 -ResourceGroup "rg-expensemgmt-20251206" -Location "uksouth"
 ```
 
 This deploys:
@@ -70,7 +82,7 @@ This deploys:
 - Application Insights & Log Analytics
 - Azure OpenAI + AI Search (if -DeployGenAI specified)
 
-### Step 4: Deploy Application
+#### Step 3b: Deploy Application
 
 ```powershell
 .\deploy-app\deploy.ps1
@@ -78,7 +90,7 @@ This deploys:
 
 The script automatically reads the deployment context from the infrastructure deployment.
 
-### Step 5: Access the Application
+### Step 4: Access the Application
 
 Open your browser to:
 - **Main App**: `https://your-app-name.azurewebsites.net/Index`

@@ -65,9 +65,24 @@ Key considerations for Bicep templates:
 
 **Functions and Variables:**
 
-- The utcNow() function can only be used as a parameter default value, not in variable declarations
+- The utcNow() function can ONLY be used as a parameter default value, never in variable declarations
+- Incorrect: `var timestamp = utcNow('yyyyMMddHHmm')` - causes BCP065 error
+- Correct: `param timestamp string = utcNow('yyyyMMddHHmm')` - use as parameter default
 - Use `uniqueString(resourceGroup().id)` for deterministic unique names
+
+**Avoiding Circular Dependencies (BCP080):**
+
+- Monitoring resources (Application Insights) and App Service can create circular dependencies if not structured correctly
+- Problem: App Service needs `appInsightsConnectionString` from Monitoring, but Monitoring needs `appServiceName` for diagnostics
+- Solution: Split the deployment into phases:
+  1. Deploy Monitoring module first WITHOUT App Service diagnostics (pass empty string for appServiceName)
+  2. Deploy App Service second, referencing the Application Insights connection string
+  3. Deploy App Service diagnostics as a separate module AFTER App Service is created
+- Create a separate `app-service-diagnostics.bicep` module that takes `appServiceName` and `logAnalyticsWorkspaceId` as parameters
+- Make the `appServiceName` parameter optional in the monitoring module with a default empty string
+- Use conditional resource deployment: `resource appService ... = if (!empty(appServiceName)) { ... }`
 
 **Diagnostics:**
 
 - Do not configure diagnostic settings at the SQL Server level as categories like SQLSecurityAuditEvents are not supported - only configure diagnostics at the database level
+- App Service diagnostics should be deployed in a separate module after the App Service exists to avoid circular dependencies

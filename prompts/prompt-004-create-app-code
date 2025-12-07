@@ -1,12 +1,32 @@
 Build an ASP.NET Razor Pages application in C# that recreates the functionality shown in the screenshots in the Legacy-Screenshots folder.
 
-The main Index page should have buttons or links for all the standard database operations like adding records, viewing data, and filtering results.
+## Application Structure
 
-Aim for a clean, modern user interface similar to this example:
+Organise the code following standard ASP.NET conventions:
+
+- **Pages/**: Razor Pages for the user interface (Index.cshtml, AddExpense.cshtml, etc.)
+- **Controllers/**: API controllers for data operations
+- **Models/**: Data models representing database entities
+- **Services/**: Business logic and data access through stored procedures
+- **wwwroot/**: Static files (CSS, JavaScript)
+
+## User Interface Requirements
+
+The main Index page should provide clear navigation to all the standard database operations like adding records, viewing data, and filtering results. Aim for a clean, modern user interface that's intuitive and responsive.
+
+Reference design inspiration:
 https://cdn.dribbble.com/userupload/4279134/file/original-5e630140a5ad559268aaf9fd3650b403.png?resize=2048x1536&vertical=center
+
+## Technology Requirements
 
 Target .NET 8 (the current Long Term Support version):
 
     <TargetFramework>net8.0</TargetFramework>
+
+The application uses a user-assigned managed identity to connect to Azure SQL Database - no connection strings with passwords. See prompt-008-use-existing-db for connection string configuration.
+
+## Data Access
+
+All database operations should go through the Services layer, which calls stored procedures. Never construct SQL queries directly in the application code. See prompt-024-sqlcmd-stored-procedures for the stored procedure patterns.
 
 

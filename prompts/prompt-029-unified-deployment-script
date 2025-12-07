@@ -1,0 +1,54 @@
+Create a unified deployment script that deploys both infrastructure and application with a single command.
+
+Save this as `deploy-all.ps1` in the repository root. This script orchestrates the entire deployment process by calling the existing infrastructure and application deployment scripts in sequence.
+
+## Purpose
+
+While the infrastructure (deploy-infra/deploy.ps1) and application (deploy-app/deploy.ps1) scripts can be run independently for flexibility, many users want a single command to deploy everything from scratch. This script provides that convenience without duplicating any logic.
+
+## Parameters
+
+The script should accept the same parameters as the infrastructure deployment script:
+
+- ResourceGroup (required): The name of the Azure resource group
+- Location (required): The Azure region (e.g., 'uksouth', 'eastus')
+- BaseName (optional): Base name for resources, defaults to 'expensemgmt'
+- DeployGenAI (optional switch): Include Azure OpenAI and AI Search resources
+
+## Behaviour
+
+The script should:
+
+1. Display a clear header indicating this is a full deployment
+2. Validate that both deployment scripts exist before starting
+3. Run the infrastructure deployment script with all provided parameters
+4. Check the exit code - stop immediately if infrastructure deployment fails
+5. Wait a brief moment (10-15 seconds) to ensure Azure resources are fully ready
+6. Run the application deployment script (which reads the context file automatically)
+7. Check the exit code - report any application deployment failures
+8. Display a final summary showing the complete deployment status and the application URL
+
+## Error Handling
+
+If either deployment fails:
+- Display a clear error message indicating which phase failed
+- Provide guidance on how to retry (e.g., "Run deploy-infra/deploy.ps1 to retry infrastructure")
+- Exit with a non-zero code
+
+## Example Usage
+
+From the repository root:
+
+    .\deploy-all.ps1 -ResourceGroup "rg-expensemgmt-20251206" -Location "uksouth"
+
+With GenAI resources:
+
+    .\deploy-all.ps1 -ResourceGroup "rg-expensemgmt-20251206" -Location "uksouth" -DeployGenAI
+
+## Important Notes
+
+- This script should be thin - it orchestrates the other scripts rather than containing deployment logic itself
+- Changes to deployment logic should be made in the individual scripts (deploy-infra and deploy-app), not here
+- The script relies on the .deployment-context.json file created by the infrastructure script
+
+See also: prompt-027-deployment-script for infrastructure details, prompt-005-deploy-app-code for application deployment details.

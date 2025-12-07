@@ -1,5 +1,22 @@
 Create all the API endpoints needed to support the functionality shown in the screenshots. The application code should use these APIs rather than accessing the database directly.
 
-Include Swagger documentation so developers can see all available endpoints and test them interactively through the Swagger UI.
+## API Controller Structure
 
-Both the main application and the chat interface must interact with the database through these APIs - they should never query the database directly. This keeps the data access layer centralised and maintainable. 
+Create an `ApiControllers.cs` file in the Controllers folder (or separate controller files if you prefer) with endpoints for:
+
+- GET endpoints to retrieve expense data (all expenses, filtered by status, by employee)
+- POST endpoints to create new expenses
+- PUT/PATCH endpoints to update expense status (approve, reject)
+- DELETE endpoints if the application needs to remove records
+
+## Swagger Documentation
+
+Include Swagger documentation so developers can see all available endpoints and test them interactively through the Swagger UI at `/swagger`. This is invaluable for debugging and API exploration.
+
+## Centralised Data Access
+
+Both the main application pages and the chat interface must interact with the database through these APIs - they should never query the database directly. This keeps the data access layer centralised and maintainable.
+
+The API controllers should call the Services layer, which in turn calls stored procedures. This layered architecture makes the code easier to test and maintain.
+
+See also: prompt-024-sqlcmd-stored-procedures for the stored procedure patterns, prompt-020-model-function-calling for how the chat interface uses these APIs. 

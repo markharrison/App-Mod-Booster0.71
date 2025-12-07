@@ -28,14 +28,16 @@ After the Bicep deployment finishes, the script must:
 
 2. Configure the App Service with these values:
 
-       az webapp config appsettings set --settings "OpenAI__Endpoint=$OPENAI_ENDPOINT" "OpenAI__DeploymentName=$OPENAI_MODEL_NAME"
+       az webapp config appsettings set --settings "GenAISettings__OpenAIEndpoint=$OPENAI_ENDPOINT" "GenAISettings__OpenAIModelName=$OPENAI_MODEL_NAME"
 
-Do NOT try to set OpenAI__Endpoint or OpenAI__DeploymentName in the Bicep app settings directly - this creates an unresolvable circular dependency.
+Do NOT try to set GenAI settings in the Bicep app settings directly - this creates an unresolvable circular dependency.
 
 ## Application Code
 
 The C# code should:
 
 - Use the Azure.Identity package with DefaultAzureCredential (not API keys)
-- Read settings from configuration: OpenAI:Endpoint and OpenAI:DeploymentName
+- Read settings from configuration: GenAISettings:OpenAIEndpoint and GenAISettings:OpenAIModelName
 - Create the OpenAIClient using the managed identity for authentication
+
+See also: prompt-009-create-genai-resources, prompt-025-clientid-for-chat
