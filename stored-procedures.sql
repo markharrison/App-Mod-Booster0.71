@@ -421,7 +421,7 @@ BEGIN
         CAST(SUM(e.AmountMinor) / 100.0 AS DECIMAL(10,2)) AS TotalAmount
     FROM dbo.Expenses e
     INNER JOIN dbo.ExpenseStatus s ON e.StatusId = s.StatusId
-    GROUP BY s.StatusName
+    GROUP BY s.StatusName, s.StatusId
     ORDER BY s.StatusId;
 END
 GO

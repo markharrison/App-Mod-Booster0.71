@@ -84,7 +84,7 @@ public class ChatService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in chat service");
-            return $"Error: {ex.Message}. The AI Chat feature is available but encountered an error. Please check the logs for details.";
+            return "I encountered an error processing your message. Please try again or contact support if the issue persists.";
         }
     }
 
