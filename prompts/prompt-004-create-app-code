@@ -6,7 +6,7 @@ Organise the code following standard ASP.NET conventions:
 
 - **Pages/**: Razor Pages for the user interface (Index.cshtml, AddExpense.cshtml, etc.)
 - **Controllers/**: API controllers for data operations
-- **Models/**: Data models representing database entities
+- **Models/**: Data models representing database entities (can use a single ExpenseModels.cs file)
 - **Services/**: Business logic and data access through stored procedures
 - **wwwroot/**: Static files (CSS, JavaScript)
 
@@ -28,5 +28,20 @@ The application uses a user-assigned managed identity to connect to Azure SQL Da
 ## Data Access
 
 All database operations should go through the Services layer, which calls stored procedures. Never construct SQL queries directly in the application code. See prompt-024-sqlcmd-stored-procedures for the stored procedure patterns.
+
+## Critical: Column Name Alignment
+
+When mapping SQL results to C# model properties, the column names in `reader.GetOrdinal("ColumnName")` must EXACTLY match what the stored procedures return. Check stored-procedures.sql for the actual column aliases:
+
+- The stored procedure returns `AmountDecimal` (not `Amount`) - map this to the model's `Amount` property
+- The stored procedure returns `ReviewedByName` (not `ReviewerName`) - map this to the model's `ReviewerName` property
+
+Example of correct mapping:
+```csharp
+Amount = reader.GetDecimal(reader.GetOrdinal("AmountDecimal")),
+ReviewerName = reader.IsDBNull(reader.GetOrdinal("ReviewedByName")) ? null : reader.GetString(reader.GetOrdinal("ReviewedByName")),
+```
+
+Getting these names wrong causes "Unable to cast object" or "column not found" runtime errors.
 
 

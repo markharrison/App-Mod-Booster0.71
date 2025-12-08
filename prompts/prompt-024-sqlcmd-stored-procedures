@@ -15,6 +15,14 @@ If a stored procedure returns a calculated column like `CAST(e.AmountMinor / 100
 
 Similarly, if the stored procedure returns `reviewer.UserName AS ReviewedByName`, the C# code must use `GetOrdinal("ReviewedByName")` not `GetOrdinal("ReviewerName")`.
 
+Quick reference for this application's column mappings:
+
+| Stored Procedure Column | C# Model Property | Notes |
+|------------------------|-------------------|-------|
+| AmountMinor | AmountMinor | INT in database |
+| AmountDecimal | Amount | Calculated DECIMAL(10,2) |
+| ReviewedByName | ReviewerName | Aliased from reviewer.UserName |
+
 The infrastructure deployment script (deploy-infra/deploy.ps1) automatically imports these stored procedures using sqlcmd with Entra ID authentication.
 
 For manual execution, use sqlcmd with the --authentication-method=ActiveDirectoryDefault argument.
