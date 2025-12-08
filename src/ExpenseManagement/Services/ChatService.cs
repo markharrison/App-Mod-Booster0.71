@@ -201,7 +201,9 @@ Important: Amounts are stored in the database as pence (minor units), but you sh
                         UserId = createArgs!["userId"].GetInt32(),
                         CategoryId = createArgs["categoryId"].GetInt32(),
                         Amount = createArgs["amount"].GetDecimal(),
-                        ExpenseDate = DateTime.Parse(createArgs["expenseDate"].GetString()!),
+                        ExpenseDate = createArgs.ContainsKey("expenseDate") && DateTime.TryParse(createArgs["expenseDate"].GetString(), out var parsedDate) 
+                            ? parsedDate 
+                            : DateTime.Today,
                         Description = createArgs.ContainsKey("description") ? createArgs["description"].GetString() : null,
                         Currency = "GBP"
                     };

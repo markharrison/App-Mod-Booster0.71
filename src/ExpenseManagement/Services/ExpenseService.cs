@@ -146,7 +146,7 @@ public class ExpenseService
             
             command.Parameters.AddWithValue("@UserId", request.UserId);
             command.Parameters.AddWithValue("@CategoryId", request.CategoryId);
-            command.Parameters.AddWithValue("@AmountMinor", (int)(request.Amount * 100));
+            command.Parameters.AddWithValue("@AmountMinor", decimal.ToInt32(request.Amount * 100));
             command.Parameters.AddWithValue("@Currency", request.Currency);
             command.Parameters.AddWithValue("@ExpenseDate", request.ExpenseDate);
             command.Parameters.AddWithValue("@Description", (object?)request.Description ?? DBNull.Value);
@@ -176,7 +176,7 @@ public class ExpenseService
             
             command.Parameters.AddWithValue("@ExpenseId", request.ExpenseId);
             command.Parameters.AddWithValue("@CategoryId", request.CategoryId);
-            command.Parameters.AddWithValue("@AmountMinor", (int)(request.Amount * 100));
+            command.Parameters.AddWithValue("@AmountMinor", decimal.ToInt32(request.Amount * 100));
             command.Parameters.AddWithValue("@ExpenseDate", request.ExpenseDate);
             command.Parameters.AddWithValue("@Description", (object?)request.Description ?? DBNull.Value);
             
