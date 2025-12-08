@@ -38,35 +38,79 @@ public class ChatService
 
         try
         {
-            // TODO: Implement full Azure OpenAI integration with function calling
-            // For now, provide a helpful response about the system
+            var endpoint = _configuration["GenAISettings:OpenAIEndpoint"];
+            var modelName = _configuration["GenAISettings:OpenAIModelName"];
             
-            await Task.Delay(500); // Simulate processing
+            if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(modelName))
+            {
+                return "AI Chat configuration is incomplete.";
+            }
+
+            // Create credential - prefer ManagedIdentityCredential with explicit client ID
+            TokenCredential credential;
+            var managedIdentityClientId = _configuration["ManagedIdentityClientId"];
             
-            return $"I received your message: \"{userMessage}\"\n\nThe AI Chat feature requires the latest Azure.AI.OpenAI SDK and will be fully functional once deployed to Azure with GenAI resources. For now, please use the web interface to manage expenses.";
+            if (!string.IsNullOrEmpty(managedIdentityClientId))
+            {
+                _logger.LogInformation("Using ManagedIdentityCredential with client ID: {ClientId}", managedIdentityClientId);
+                credential = new ManagedIdentityCredential(managedIdentityClientId);
+            }
+            else
+            {
+                _logger.LogInformation("Using DefaultAzureCredential");
+                credential = new DefaultAzureCredential();
+            }
+
+            var client = new OpenAIClient(new Uri(endpoint), credential);
+
+            // Simple chat completion without function calling
+            var chatCompletionsOptions = new ChatCompletionsOptions()
+            {
+                DeploymentName = modelName,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(GetSystemPrompt()),
+                    new ChatRequestUserMessage(userMessage)
+                },
+                Temperature = 0.7f,
+                MaxTokens = 800
+            };
+
+            var response = await client.GetChatCompletionsAsync(chatCompletionsOptions);
+            var completion = response.Value.Choices[0].Message.Content;
+
+            return completion ?? "I couldn't generate a response.";
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in chat service");
-            return $"Error: {ex.Message}";
+            return "I encountered an error processing your message. Please try again or contact support if the issue persists.";
         }
     }
 
     private string GetSystemPrompt()
     {
-        return @"You are a helpful assistant for an expense management system. You can help users understand their expenses and answer questions about the system.
+        return @"You are a helpful AI assistant for an expense management system. You can help users understand their expenses and answer questions about the system.
 
-Sample users:
-- Alice Example (User ID: 1) - Employee
-- Bob Manager (User ID: 2) - Manager
+Available users:
+- Alice Example (User ID: 1) - Employee who reports to Bob
+- Bob Manager (User ID: 2) - Manager who can approve/reject expenses
 
-Sample categories:
-- Travel (ID: 1)
-- Meals (ID: 2)
-- Supplies (ID: 3)
-- Accommodation (ID: 4)
-- Other (ID: 5)
+Available expense categories:
+- Travel (Category ID: 1)
+- Meals (Category ID: 2)
+- Supplies (Category ID: 3)
+- Accommodation (Category ID: 4)
+- Other (Category ID: 5)
 
-Be helpful and conversational.";
+Expense statuses:
+- Draft: Initial state, not yet submitted
+- Submitted: Waiting for manager approval
+- Approved: Approved by manager
+- Rejected: Rejected by manager
+
+Be helpful and conversational. You can explain the system, answer questions about expenses, and provide guidance on how to use the expense management features.
+
+Note: In this version, you cannot directly access the database or perform actions. You can provide information and guidance based on the system structure described above.";
     }
 }
