@@ -429,15 +429,15 @@ public class ExpenseService
             CategoryName = reader.GetString(reader.GetOrdinal("CategoryName")),
             StatusId = reader.GetInt32(reader.GetOrdinal("StatusId")),
             StatusName = reader.GetString(reader.GetOrdinal("StatusName")),
-            AmountMinor = reader.GetInt32(reader.GetOrdinal("AmountMinor")),
-            Amount = reader.GetDecimal(reader.GetOrdinal("Amount")),
+            AmountMinor = Convert.ToInt32(reader["AmountMinor"]),
+            Amount = reader.GetDecimal(reader.GetOrdinal("AmountDecimal")),
             Currency = reader.GetString(reader.GetOrdinal("Currency")),
             ExpenseDate = reader.GetDateTime(reader.GetOrdinal("ExpenseDate")),
             Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description")),
             ReceiptFile = reader.IsDBNull(reader.GetOrdinal("ReceiptFile")) ? null : reader.GetString(reader.GetOrdinal("ReceiptFile")),
             SubmittedAt = reader.IsDBNull(reader.GetOrdinal("SubmittedAt")) ? null : reader.GetDateTime(reader.GetOrdinal("SubmittedAt")),
             ReviewedBy = reader.IsDBNull(reader.GetOrdinal("ReviewedBy")) ? null : reader.GetInt32(reader.GetOrdinal("ReviewedBy")),
-            ReviewerName = reader.IsDBNull(reader.GetOrdinal("ReviewerName")) ? null : reader.GetString(reader.GetOrdinal("ReviewerName")),
+            ReviewerName = reader.IsDBNull(reader.GetOrdinal("ReviewedByName")) ? null : reader.GetString(reader.GetOrdinal("ReviewedByName")),
             ReviewedAt = reader.IsDBNull(reader.GetOrdinal("ReviewedAt")) ? null : reader.GetDateTime(reader.GetOrdinal("ReviewedAt")),
             CreatedAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
         };
