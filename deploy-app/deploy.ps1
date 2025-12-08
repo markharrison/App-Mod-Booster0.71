@@ -47,8 +47,11 @@ Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "Application Deployment" -ForegroundColor Cyan
 Write-Host "========================================`n" -ForegroundColor Cyan
 
-# Try to read deployment context
-$contextPath = "../.deployment-context.json"
+# Try to read deployment context - check both repo root and parent directory
+$contextPath = "./.deployment-context.json"
+if (-not (Test-Path $contextPath)) {
+    $contextPath = "../.deployment-context.json"
+}
 $context = $null
 
 if (Test-Path $contextPath) {
@@ -94,8 +97,11 @@ catch {
 if (-not $SkipBuild) {
     Write-Host "`nBuilding application..." -ForegroundColor Yellow
     
-    $projectPath = "../src/ExpenseManagement/ExpenseManagement.csproj"
-    $publishPath = "../src/ExpenseManagement/bin/Release/net8.0/publish"
+    # Use script-relative paths that work from any directory
+    $scriptDir = $PSScriptRoot
+    $repoRoot = Split-Path -Parent $scriptDir
+    $projectPath = Join-Path $repoRoot "src/ExpenseManagement/ExpenseManagement.csproj"
+    $publishPath = Join-Path $repoRoot "src/ExpenseManagement/bin/Release/net8.0/publish"
     
     if (-not (Test-Path $projectPath)) {
         Write-Error "Project file not found: $projectPath"
@@ -123,8 +129,10 @@ else {
 # Create deployment package
 Write-Host "`nCreating deployment package..." -ForegroundColor Yellow
 
-$publishPath = "../src/ExpenseManagement/bin/Release/net8.0/publish"
-$zipPath = "../deploy-app/app.zip"
+$scriptDir = $PSScriptRoot
+$repoRoot = Split-Path -Parent $scriptDir
+$publishPath = Join-Path $repoRoot "src/ExpenseManagement/bin/Release/net8.0/publish"
+$zipPath = Join-Path $scriptDir "app.zip"
 
 if (Test-Path $zipPath) {
     Remove-Item $zipPath -Force
