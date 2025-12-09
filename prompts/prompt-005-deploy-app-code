@@ -11,10 +11,46 @@ The deployment process should:
 3. Build and publish the .NET application using dotnet publish
 4. Create a deployment zip package with the DLL files at the root level (not in a subdirectory)
 5. Deploy to Azure App Service using az webapp deploy with the clean and restart flags
-6. Clean up the temporary zip file after deployment
-7. Display the application URLs including the /Index page and /swagger endpoint
+6. **Handle deployment warnings gracefully** - az webapp deploy outputs progress messages to stderr (like "Warming up Kudu", "Starting the site") which are normal, not errors
+7. Clean up the temporary zip file after deployment
+8. Display the application URLs including the /Index page and /swagger endpoint
 
 The zip file structure is critical - Azure App Service expects the DLL files at the root of the zip, not inside a subdirectory like publish/ or app/.
+
+**Critical: Handle az webapp deploy output correctly**
+
+The `az webapp deploy` command outputs progress warnings to stderr which are NORMAL, not errors. The script must capture and parse the actual deployment result rather than just checking exit codes:
+
+```powershell
+Write-Host "Deploying to Azure App Service..." -ForegroundColor Yellow
+Write-Host "(This may take 2-3 minutes...)" -ForegroundColor Yellow
+
+$deployResult = az webapp deploy `
+    --resource-group $ResourceGroup `
+    --name $WebAppName `
+    --src-path $zipFile `
+    --type zip `
+    --clean true `
+    --restart true `
+    --output json 2>&1
+
+# Check if deployment succeeded by parsing the result
+# az webapp deploy outputs warnings to stderr but still succeeds
+if ($deployResult -match '"status":\s*"RuntimeSuccessful"' -or $deployResult -match 'Deployment has completed successfully') {
+    Write-Host "Deployment completed successfully!" -ForegroundColor Green
+}
+elseif ($LASTEXITCODE -ne 0) {
+    # Even if exit code is non-zero, check if deployment actually succeeded
+    if ($deployResult -match 'completed successfully' -or $deployResult -match 'RuntimeSuccessful') {
+        Write-Host "✓ Deployment succeeded despite warnings" -ForegroundColor Green
+    } else {
+        Write-Error "Deployment failed. Check Azure portal for details."
+        exit 1
+    }
+}
+```
+
+Do NOT use `--output none 2>$null` as this hides the deployment result and makes it impossible to determine if the deployment actually succeeded.
 
 Path handling is also critical - use `$PSScriptRoot` to build paths relative to the script location, not relative to the current working directory. This ensures the script works correctly whether called from the repo root (by deploy-all.ps1) or from within the deploy-app folder:
 

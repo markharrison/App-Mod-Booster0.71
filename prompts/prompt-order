@@ -102,6 +102,8 @@ These issues have caused problems in past builds - please avoid them:
 
 13. **Azure Policy timing issues**: In subscriptions with governance policies, Azure may automatically create policy deployments (like diagnostic settings) that can fail transiently while retrying. The `az deployment group create` command may return a non-zero exit code even though YOUR infrastructure deployed successfully. Implement resilient error handling by waiting 15 seconds and then finding the successful main deployment by filtering out policy-related names (PolicyDeployment_*, Failure-Anomalies-*, *-diagnostics-*). See prompt-027-deployment-script for the complete pattern.
 
+14. **az webapp deploy stderr warnings**: The `az webapp deploy` command outputs normal progress messages to stderr (like "Warming up Kudu", "Polling status", "Starting the site"). Do NOT suppress this output with `2>$null` or treat stderr output as errors. Instead, capture the full output with `2>&1` and parse for `"status": "RuntimeSuccessful"` or `"completed successfully"` to determine actual deployment success. See prompt-005-deploy-app-code for the complete pattern.
+
 ## Reference the Working Scripts
 
 If you're unsure about the correct implementation pattern for any of these pitfalls, examine the existing scripts in the repository. These files contain working, tested code:
