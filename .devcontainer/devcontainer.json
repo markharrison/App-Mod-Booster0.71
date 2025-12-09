@@ -21,7 +21,7 @@
       "installTools": true
     }
   },
-  "postCreateCommand": "sudo bash -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list && apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev' && pip install jq pyodbc azure-identity",
+  "postCreateCommand": "sudo bash -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list && apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev sqlcmd' && pip install jq pyodbc azure-identity",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -29,28 +29,16 @@
         "ms-dotnettools.csharp",
         "ms-dotnettools.vscode-dotnet-runtime",
         "ms-python.python",
-        "ms-azuretools.vscode-azureresourcegroups"
+        "ms-azuretools.vscode-azureresourcegroups",
+        "ms-azuretools.vscode-bicep",
+        "ms-vscode.powershell"
       ]
     }
+  },
+  "forwardPorts": [5000, 5001],
+  "portsAttributes": {
+    "5001": {
+      "protocol": "https"
+    }
   }
-
-  // Features to add to the dev container. More info: https://containers.dev/features.
-  // "features": {},
-
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  // "forwardPorts": [5000, 5001],
-  // "portsAttributes": {
-  //		"5001": {
-  //			"protocol": "https"
-  //		}
-  // }
-
-  // Use 'postCreateCommand' to run commands after the container is created.
-  // "postCreateCommand": "dotnet restore",
-
-  // Configure tool-specific properties.
-  // "customizations": {},
-
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  // "remoteUser": "root"
 }

@@ -17,6 +17,10 @@ param adminLogin string
 @allowed(['User', 'Application'])
 param adminPrincipalType string = 'User'
 
+@description('Unused SQL admin password (required by API but not used with AD-only auth)')
+@secure()
+param sqlAdminPassword string = newGuid()
+
 var sqlServerName = toLower('sql-${baseName}-${uniqueSuffix}')
 var databaseName = 'Northwind'
 
@@ -25,7 +29,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   location: location
   properties: {
     administratorLogin: 'sqladmin' // Not used with Azure AD-only auth
-    administratorLoginPassword: newGuid() // Not used with Azure AD-only auth
+    administratorLoginPassword: sqlAdminPassword // Not used with Azure AD-only auth
     version: '12.0'
     minimalTlsVersion: '1.2'
     publicNetworkAccess: 'Enabled'

@@ -12,6 +12,17 @@ This is a mandatory governance requirement - we must use Azure AD-only authentic
 - SQL username/password authentication must be completely disabled
 - This complies with the MCAPS "[SFI-ID4.2.2] SQL DB - Safe Secrets Standard" policy
 
+**Important Bicep Compatibility:** The SQL Server API requires an `administratorLoginPassword` field even when using AD-only authentication. You MUST use a secure parameter with `newGuid()` as the default value:
+
+```bicep
+@secure()
+param sqlAdminPassword string = newGuid()
+```
+
+Then reference it in the resource: `administratorLoginPassword: sqlAdminPassword`
+
+This is required because `newGuid()` can only be used as a parameter default value in Bicep, not directly in resource properties. Using `administratorLoginPassword: newGuid()` directly will cause a BCP065 error in newer Bicep versions.
+
 ### Entra ID Administrator
 
 Configure the person deploying as the SQL server administrator:

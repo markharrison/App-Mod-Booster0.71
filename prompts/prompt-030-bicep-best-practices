@@ -1,0 +1,68 @@
+## Bicep Best Practices and Common Pitfalls
+
+These guidelines ensure compatibility across different Bicep CLI versions and prevent common deployment errors.
+
+### Special Functions - Parameter Default Values Only
+
+Certain Bicep functions can ONLY be used as parameter default values, not in variables or directly in resource properties:
+
+**Functions with restrictions:**
+- `newGuid()` - Generates a unique GUID
+- `utcNow()` - Gets current UTC timestamp
+
+**❌ WRONG - Will cause BCP065 error:**
+```bicep
+var timestamp = utcNow('yyyy-MM-dd')              // Error in variable
+administratorLoginPassword: newGuid()              // Error in resource property
+```
+
+**✅ CORRECT - Use as parameter defaults:**
+```bicep
+param timestamp string = utcNow('yyyy-MM-dd')      // OK as parameter default
+@secure()
+param sqlAdminPassword string = newGuid()          // OK as parameter default
+
+// Then use the parameter
+var deploymentTime = timestamp
+administratorLoginPassword: sqlAdminPassword
+```
+
+### Why This Matters
+
+- Newer Bicep versions (v0.20+) enforce stricter validation
+- GitHub Actions, Azure DevOps, and Codespaces often have latest Bicep versions
+- Local machines may have older, more permissive versions
+- Code that works locally may fail in CI/CD pipelines
+
+### Testing for Compatibility
+
+Always validate Bicep templates before committing:
+
+```bash
+az deployment group validate \
+  --resource-group "test-rg" \
+  --template-file "main.bicep" \
+  --parameters @parameters.json
+```
+
+Look for BCP065 errors in the output - these indicate special function misuse.
+
+### Other Best Practices
+
+1. **Use `@secure()` decorator** for passwords and secrets
+2. **Use `@allowed([])` decorator** to restrict parameter values
+3. **Add `@description()` to all parameters** for documentation
+4. **Use string interpolation** instead of concat(): `'${prefix}-${suffix}'`
+5. **Validate resource names** follow Azure naming conventions (length, characters)
+6. **Use `@minLength()` and `@maxLength()`** for string validation
+
+### Common Errors to Avoid
+
+- **BCP065**: Function used incorrectly (use as parameter default)
+- **BCP081**: Missing resource type definition (update Bicep CLI)
+- **BCP104**: Referenced module has errors (check module files)
+- **BCP318**: Value may be null (add null checks or conditions)
+
+### Version Compatibility
+
+Target Bicep CLI version 0.20.0 or later for maximum compatibility with Azure DevOps and GitHub Actions.

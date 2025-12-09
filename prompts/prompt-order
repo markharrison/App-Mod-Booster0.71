@@ -1,6 +1,7 @@
 This is the order in which the coding agent should read and work on the prompts:
 
 prompt-006-baseline-script-instruction,
+prompt-030-bicep-best-practices,
 prompt-001-create-app-service,
 prompt-017-create-managed-identity,
 prompt-002-create-azure-sql,
@@ -85,17 +86,19 @@ These issues have caused problems in past builds - please avoid them:
 
 5. **Bicep utcNow() usage**: Never use `utcNow()` in variable declarations - it's only allowed as a parameter default value.
 
-6. **SQL connection string format**: Must include `Authentication=Active Directory Managed Identity;User Id={clientId}` - don't use `Trusted_Connection` or Windows auth.
+6. **Bicep newGuid() usage**: Never use `newGuid()` directly in resource properties - it's only allowed as a parameter default value. For SQL Server passwords with AD-only auth, create a secure parameter: `@secure() param sqlAdminPassword string = newGuid()` then use the parameter in the resource.
 
-7. **Resource naming**: Azure OpenAI and AI Search names must be lowercase. Apply `toLower()` when using `uniqueString()`.
+7. **SQL connection string format**: Must include `Authentication=Active Directory Managed Identity;User Id={clientId}` - don't use `Trusted_Connection` or Windows auth.
 
-8. **Sqlcmd piping**: Never pipe SQL directly to sqlcmd - always write to a temp file first, then use `-i` to execute it.
+8. **Resource naming**: Azure OpenAI and AI Search names must be lowercase. Apply `toLower()` when using `uniqueString()`.
 
-9. **C# column names must match stored procedures exactly**: When mapping SQL results to C# objects, the column names in `reader.GetOrdinal("ColumnName")` must match exactly what the stored procedure returns. For example, if the stored procedure returns `AmountDecimal`, the C# code must use `GetOrdinal("AmountDecimal")` not `GetOrdinal("Amount")`. Mismatches cause "Unable to cast object" or "column not found" errors.
+9. **Sqlcmd piping**: Never pipe SQL directly to sqlcmd - always write to a temp file first, then use `-i` to execute it.
 
-10. **C# column count must match stored procedure output**: If a stored procedure returns 3 columns, don't try to read 4. The GetExpenseSummary procedure returns (StatusName, ExpenseCount, TotalAmount) - only 3 columns. If the C# model needs TotalAmountMinor, calculate it from TotalAmount rather than expecting a 4th column.
+10. **C# column names must match stored procedures exactly**: When mapping SQL results to C# objects, the column names in `reader.GetOrdinal("ColumnName")` must match exactly what the stored procedure returns. For example, if the stored procedure returns `AmountDecimal`, the C# code must use `GetOrdinal("AmountDecimal")` not `GetOrdinal("Amount")`. Mismatches cause "Unable to cast object" or "column not found" errors.
 
-11. **PowerShell scripts must use $PSScriptRoot for relative paths**: When a script references files (like .deployment-context.json or project paths), use `$PSScriptRoot` to build absolute paths. Scripts called by deploy-all.ps1 run from the repo root, not from their own folder. Check both `./.deployment-context.json` and `../.deployment-context.json` for the context file.
+11. **C# column count must match stored procedure output**: If a stored procedure returns 3 columns, don't try to read 4. The GetExpenseSummary procedure returns (StatusName, ExpenseCount, TotalAmount) - only 3 columns. If the C# model needs TotalAmountMinor, calculate it from TotalAmount rather than expecting a 4th column.
+
+12. **PowerShell scripts must use $PSScriptRoot for relative paths**: When a script references files (like .deployment-context.json or project paths), use `$PSScriptRoot` to build absolute paths. Scripts called by deploy-all.ps1 run from the repo root, not from their own folder. Check both `./.deployment-context.json` and `../.deployment-context.json` for the context file.
 
 ## Reference the Working Scripts
 
