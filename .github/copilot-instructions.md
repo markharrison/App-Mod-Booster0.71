@@ -36,6 +36,8 @@ prompts/               ← Original prompt files (reference only)
 
 ### 1. PowerShell Only
 - **NEVER** create `.sh`, `.bash`, or any shell script files
+- **NEVER** use bash syntax inside `.ps1` files (e.g. `<<<`, `@-`, `|&`, `2>&1 |`)
+- When piping JSON to Azure CLI, write to a temp file and use `"@$tempFile"` — never `@-` with `<<<`
 - All automation uses PowerShell `.ps1` scripts compatible with PowerShell 7+
 - Use hashtable splatting for script-to-script parameter passing (never array splatting)
 
@@ -68,7 +70,8 @@ prompts/               ← Original prompt files (reference only)
 ## Common Pitfalls (All Agents Must Know)
 
 1. **PowerShell splatting** → use hashtables `@{ Key = $Value }`, not arrays
-2. **Azure CLI JSON output** → redirect stderr with `2>$null`, not `2>&1`
+2. **No bash syntax in .ps1** → never use `<<<`, `@-`, or bash here-strings; write to temp file instead
+3. **Azure CLI JSON output** → redirect stderr with `2>$null`, not `2>&1`
 3. **Bicep `utcNow()` / `newGuid()`** → only valid as parameter defaults
 4. **sqlcmd piping** → write to temp file first, use `-i` flag
 5. **sqlcmd auth quoting** → `"--authentication-method=ActiveDirectoryDefault"`

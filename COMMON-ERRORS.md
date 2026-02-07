@@ -82,6 +82,37 @@ $deployment = $output | ConvertFrom-Json  # WORKS!
 
 ---
 
+### ❌ Error: "Unrecognized token in source text" (`@-` or `<<<`)
+
+**Cause:** Using bash/Linux shell syntax inside a PowerShell `.ps1` script. `@-` (read from stdin) and `<<<` (here-string redirect) are bash constructs that PowerShell does not recognise. AI agents frequently generate these patterns because they appear in many online examples for `az` CLI commands.
+
+**Bad Code:**
+```powershell
+az webapp config appsettings set `
+    --resource-group $rg `
+    --name $app `
+    --settings @- `
+    --output none <<< $jsonPayload  # ❌ bash syntax, not PowerShell!
+```
+
+**Good Code:**
+```powershell
+$tempFile = [System.IO.Path]::GetTempFileName()
+$jsonPayload | Set-Content -Path $tempFile -Encoding UTF8
+az webapp config appsettings set `
+    --resource-group $rg `
+    --name $app `
+    --settings "@$tempFile" `
+    --output none 2>$null
+Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
+```
+
+**Where This Applies:** Any Azure CLI call in `.ps1` scripts that passes JSON payloads
+
+**Reference:** `prompts/prompt-006-baseline-script-instruction`
+
+---
+
 ### ❌ Error: sqlcmd crashes with nil pointer panic
 
 **Cause:** Piping SQL directly to sqlcmd instead of using a file.
@@ -371,6 +402,7 @@ Before completing any phase, verify these patterns:
 ### ✅ PowerShell Scripts
 - [ ] `deploy-all.ps1` uses hashtable splatting (not array splatting)
 - [ ] `deploy-infra/deploy.ps1` uses `2>$null` for JSON output (not `2>&1`)
+- [ ] No bash syntax (`<<<`, `@-`) in any `.ps1` file — use temp files for JSON payloads
 - [ ] All sqlcmd calls use temp files and `-i` flag (no piping)
 - [ ] sqlcmd auth parameter is quoted: `"--authentication-method=..."`
 
