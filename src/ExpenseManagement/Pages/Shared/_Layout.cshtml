@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Expense Orchestrator</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="top-quantum-band">
+        <div class="brand-nucleus">
+            <h1 class="app-sigil">💰 Expense Orchestrator</h1>
+        </div>
+        <nav class="quantum-nav-mesh">
+            <a href="/" class="nav-particle @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "particle-energized" : "")">Dashboard</a>
+            <a href="/AddExpense" class="nav-particle @(ViewContext.RouteData.Values["page"]?.ToString() == "/AddExpense" ? "particle-energized" : "")">Submit Claim</a>
+            <a href="/Expenses" class="nav-particle @(ViewContext.RouteData.Values["page"]?.ToString() == "/Expenses" ? "particle-energized" : "")">View Records</a>
+            <a href="/Approvals" class="nav-particle @(ViewContext.RouteData.Values["page"]?.ToString() == "/Approvals" ? "particle-energized" : "")">Approvals</a>
+            <a href="/Chat" class="nav-particle @(ViewContext.RouteData.Values["page"]?.ToString() == "/Chat" ? "particle-energized" : "")">AI Assistant</a>
+        </nav>
+    </header>
+
+    @if (ViewData["ErrorInfo"] != null || ViewData["ErrorLocation"] != null || ViewData["ErrorGuidance"] != null)
+    {
+        <div class="fault-broadcast-strip">
+            <div class="fault-icon-zone">⚠️</div>
+            <div class="fault-content-zone">
+                @if (ViewData["ErrorInfo"] != null)
+                {
+                    <div class="fault-headline">@ViewData["ErrorInfo"]</div>
+                }
+                @if (ViewData["ErrorLocation"] != null)
+                {
+                    <div class="fault-coordinates">Location: @ViewData["ErrorLocation"]</div>
+                }
+                @if (ViewData["ErrorGuidance"] != null)
+                {
+                    <div class="fault-remedy">@ViewData["ErrorGuidance"]</div>
+                }
+            </div>
+        </div>
+    }
+
+    <main class="workspace-canvas">
+        @RenderBody()
+    </main>
+
+    <footer class="foundation-band">
+        <p class="foundation-inscription">&copy; @DateTime.Now.Year - Expense Management Platform - Powered by Azure</p>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

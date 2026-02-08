@@ -1,0 +1,99 @@
+@page
+@model ExpensesModel
+@{
+    ViewData["Title"] = "Expense Registry";
+}
+
+<div class="command-nexus">
+    <h2 class="nexus-beacon">📋 Expense Claim Registry</h2>
+    <p class="nexus-subtitle">@Model.CurrentFilterDescription (@Model.ClaimInventory.Count items)</p>
+</div>
+
+<div class="filter-apparatus-ribbon">
+    <div class="ribbon-label">Filter by Status:</div>
+    <div class="ribbon-selector-array">
+        <a href="/Expenses" class="selector-chip @(Model.StatusFilterCriterion == null ? "chip-activated" : "")">
+            All
+        </a>
+        <a href="/Expenses?StatusFilterCriterion=1" class="selector-chip @(Model.StatusFilterCriterion == 1 ? "chip-activated" : "")">
+            Draft
+        </a>
+        <a href="/Expenses?StatusFilterCriterion=2" class="selector-chip @(Model.StatusFilterCriterion == 2 ? "chip-activated" : "")">
+            Submitted
+        </a>
+        <a href="/Expenses?StatusFilterCriterion=3" class="selector-chip @(Model.StatusFilterCriterion == 3 ? "chip-activated" : "")">
+            Approved
+        </a>
+        <a href="/Expenses?StatusFilterCriterion=4" class="selector-chip @(Model.StatusFilterCriterion == 4 ? "chip-activated" : "")">
+            Rejected
+        </a>
+    </div>
+</div>
+
+@if (!Model.ClaimInventory.Any())
+{
+    <div class="empty-state-declaration">
+        <div class="declaration-icon">📭</div>
+        <div class="declaration-message">No expense claims match your current filter criteria.</div>
+        <a href="/AddExpense" class="declaration-action">Submit your first claim →</a>
+    </div>
+}
+else
+{
+    <div class="data-ribbon-container">
+        @foreach (var claim in Model.ClaimInventory)
+        {
+            <div class="claim-ribbon-entry">
+                <div class="ribbon-primary-sector">
+                    <div class="claim-identifier-badge">#@claim.ExpenseId</div>
+                    <div class="claim-details-cluster">
+                        <div class="claim-category-designation">@claim.CategoryName</div>
+                        <div class="claim-submitter-attribution">Filed by: @claim.UserName</div>
+                    </div>
+                </div>
+                
+                <div class="ribbon-financial-sector">
+                    <div class="financial-magnitude">£@claim.Amount.ToString("N2")</div>
+                    <div class="financial-currency-tag">@claim.Currency</div>
+                </div>
+                
+                <div class="ribbon-temporal-sector">
+                    <div class="temporal-label">Transaction Date</div>
+                    <div class="temporal-value">@claim.ExpenseDate.ToString("dd MMM yyyy")</div>
+                </div>
+                
+                <div class="ribbon-status-sector">
+                    <span class="status-insignia @Model.DetermineStatusBadgeClass(claim.StatusName)">
+                        @claim.StatusName
+                    </span>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(claim.Description))
+                {
+                    <div class="ribbon-narrative-sector">
+                        <div class="narrative-label">Description:</div>
+                        <div class="narrative-content">@claim.Description</div>
+                    </div>
+                }
+                
+                @if (claim.ReviewerName != null)
+                {
+                    <div class="ribbon-review-sector">
+                        <span class="review-attribution">Reviewed by @claim.ReviewerName on @claim.ReviewedAt?.ToString("dd MMM yyyy")</span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+<div class="action-cluster">
+    <a href="/AddExpense" class="action-trigger action-primary">
+        <span class="trigger-icon">➕</span>
+        <span class="trigger-label">Submit New Claim</span>
+    </a>
+    <a href="/" class="action-trigger action-neutral">
+        <span class="trigger-icon">🏠</span>
+        <span class="trigger-label">Dashboard</span>
+    </a>
+</div>
