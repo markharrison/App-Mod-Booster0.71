@@ -1,0 +1,84 @@
+@page
+@model ChatModel
+@{
+    ViewData["Title"] = "AI Concierge";
+}
+
+<div class="command-nexus">
+    <h2 class="nexus-beacon">🤖 Neural Expense Concierge</h2>
+    <p class="nexus-subtitle">Intelligent assistant for expense management</p>
+</div>
+
+@if (!Model.IntelligenceEngineAvailable)
+{
+    <div class="intelligence-unavailable-proclamation">
+        <div class="proclamation-icon-large">🔌</div>
+        <div class="proclamation-heading">AI Chat is not available yet</div>
+        <div class="proclamation-explanation">
+            The neural intelligence engine requires additional Azure OpenAI resources to function.
+        </div>
+        <div class="proclamation-remedy">
+            <strong>To enable this feature:</strong> Redeploy the infrastructure using the <code>-DeployGenAI</code> switch.
+        </div>
+        <div class="action-cluster">
+            <a href="/" class="action-trigger action-neutral">
+                <span class="trigger-icon">🏠</span>
+                <span class="trigger-label">Return to Dashboard</span>
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="neural-conversation-arena">
+        <div class="conversation-transcript-viewport" id="transcriptViewport">
+            <div class="system-greeting-message">
+                <div class="greeting-avatar">🤖</div>
+                <div class="greeting-bubble">
+                    <strong>Neural Concierge Activated</strong>
+                    <p>I can help you manage expenses, retrieve claim information, and answer questions about the system. What would you like to know?</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversation-input-apparatus">
+            <textarea id="userMessageComposer" 
+                      class="message-composition-field" 
+                      placeholder="Ask me about your expenses or request assistance..."
+                      rows="3"></textarea>
+            <button id="transmitMessageButton" class="message-transmit-trigger">
+                <span class="trigger-icon">📤</span>
+                <span class="trigger-label">Send Message</span>
+            </button>
+        </div>
+
+        <div class="conversation-capability-hints">
+            <div class="hint-label">Try asking:</div>
+            <div class="hint-examples-array">
+                <button class="hint-example-chip" onclick="populateQuery('Show me all my submitted expenses')">
+                    "Show me all my submitted expenses"
+                </button>
+                <button class="hint-example-chip" onclick="populateQuery('Create a travel expense for £150')">
+                    "Create a travel expense for £150"
+                </button>
+                <button class="hint-example-chip" onclick="populateQuery('What expenses are pending approval?')">
+                    "What expenses are pending approval?"
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function populateQuery(queryText) {
+            document.getElementById('userMessageComposer').value = queryText;
+            document.getElementById('userMessageComposer').focus();
+        }
+    </script>
+}
+
+@section Scripts {
+    @if (Model.IntelligenceEngineAvailable)
+    {
+        <script src="~/js/chat.js" asp-append-version="true"></script>
+    }
+}

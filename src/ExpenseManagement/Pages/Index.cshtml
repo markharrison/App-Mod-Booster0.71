@@ -1,0 +1,66 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Command Center";
+}
+
+<div class="command-nexus">
+    <h2 class="nexus-beacon">📊 Financial Command Center</h2>
+    <p class="nexus-subtitle">Monitor and manage your expense ecosystem</p>
+</div>
+
+<div class="metric-constellation">
+    <div class="stat-orb stat-orb-primary">
+        <div class="orb-label">Total Claims</div>
+        <div class="orb-magnitude">@Model.TotalClaimVolume</div>
+    </div>
+    <div class="stat-orb stat-orb-success">
+        <div class="orb-label">Aggregate Value</div>
+        <div class="orb-magnitude">£@Model.AggregatedFinancialValue.ToString("N2")</div>
+    </div>
+</div>
+
+<div class="sphere-grid-matrix">
+    @foreach (var sphere in Model.MetricSpheres)
+    {
+        <div class="metric-sphere metric-sphere-@sphere.StatusName.ToLower()">
+            <div class="sphere-status-banner">@sphere.StatusName</div>
+            <div class="sphere-metrics-cluster">
+                <div class="sphere-count-indicator">
+                    <span class="indicator-value">@sphere.ExpenseCount</span>
+                    <span class="indicator-label">claims</span>
+                </div>
+                <div class="sphere-value-indicator">
+                    <span class="indicator-value">£@sphere.TotalAmount.ToString("N2")</span>
+                    <span class="indicator-label">total</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="navigation-portal-array">
+    <a href="/AddExpense" class="portal-gateway portal-create">
+        <div class="gateway-icon">➕</div>
+        <div class="gateway-title">Submit New Claim</div>
+        <div class="gateway-description">Register a new expense for processing</div>
+    </a>
+    
+    <a href="/Expenses" class="portal-gateway portal-view">
+        <div class="gateway-icon">📋</div>
+        <div class="gateway-title">Browse Records</div>
+        <div class="gateway-description">Review all expense submissions</div>
+    </a>
+    
+    <a href="/Approvals" class="portal-gateway portal-review">
+        <div class="gateway-icon">✓</div>
+        <div class="gateway-title">Review Queue</div>
+        <div class="gateway-description">Process pending approvals</div>
+    </a>
+    
+    <a href="/Chat" class="portal-gateway portal-ai">
+        <div class="gateway-icon">🤖</div>
+        <div class="gateway-title">AI Concierge</div>
+        <div class="gateway-description">Intelligent expense assistant</div>
+    </a>
+</div>

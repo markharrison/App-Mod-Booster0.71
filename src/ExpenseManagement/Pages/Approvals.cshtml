@@ -1,0 +1,103 @@
+@page
+@model ApprovalsModel
+@{
+    ViewData["Title"] = "Approval Verdicts";
+}
+
+<div class="command-nexus">
+    <h2 class="nexus-beacon">✓ Verdict Rendering Chamber</h2>
+    <p class="nexus-subtitle">Process pending expense approvals (@Model.PendingVerdictQueue.Count awaiting verdict)</p>
+</div>
+
+@if (Model.VerdictRenderingComplete && Model.VerdictOutcomeMessage != null)
+{
+    <div class="verdict-outcome-banner">
+        <div class="outcome-proclamation">@Model.VerdictOutcomeMessage</div>
+    </div>
+}
+
+@if (!Model.PendingVerdictQueue.Any())
+{
+    <div class="empty-state-declaration">
+        <div class="declaration-icon">✨</div>
+        <div class="declaration-message">All claims have been processed. No pending verdicts at this time.</div>
+        <a href="/Expenses" class="declaration-action">View all claims →</a>
+    </div>
+}
+else
+{
+    <div class="verdict-panel-array">
+        @foreach (var claim in Model.PendingVerdictQueue)
+        {
+            <div class="verdict-examination-panel">
+                <div class="panel-header-strip">
+                    <div class="claim-identifier-emblem">#@claim.ExpenseId</div>
+                    <div class="submission-temporal-marker">
+                        Submitted: @claim.SubmittedAt?.ToString("dd MMM yyyy HH:mm")
+                    </div>
+                </div>
+
+                <div class="panel-evidence-grid">
+                    <div class="evidence-field">
+                        <div class="field-designation">Submitter</div>
+                        <div class="field-value">@claim.UserName</div>
+                    </div>
+                    
+                    <div class="evidence-field">
+                        <div class="field-designation">Category</div>
+                        <div class="field-value">@claim.CategoryName</div>
+                    </div>
+                    
+                    <div class="evidence-field">
+                        <div class="field-designation">Amount</div>
+                        <div class="field-value financial-emphasis">£@claim.Amount.ToString("N2")</div>
+                    </div>
+                    
+                    <div class="evidence-field">
+                        <div class="field-designation">Date</div>
+                        <div class="field-value">@claim.ExpenseDate.ToString("dd MMM yyyy")</div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(claim.Description))
+                {
+                    <div class="panel-narrative-zone">
+                        <div class="narrative-designation">Supporting Details:</div>
+                        <div class="narrative-text">@claim.Description</div>
+                    </div>
+                }
+
+                <div class="panel-verdict-controls">
+                    <form method="post" asp-page-handler="RenderVerdict" class="verdict-form-inline">
+                        <input type="hidden" name="claimIdentifier" value="@claim.ExpenseId" />
+                        <input type="hidden" name="verdictDecision" value="approve" />
+                        <button type="submit" class="verdict-trigger verdict-approve">
+                            <span class="trigger-icon">✅</span>
+                            <span class="trigger-text">Approve</span>
+                        </button>
+                    </form>
+                    
+                    <form method="post" asp-page-handler="RenderVerdict" class="verdict-form-inline">
+                        <input type="hidden" name="claimIdentifier" value="@claim.ExpenseId" />
+                        <input type="hidden" name="verdictDecision" value="reject" />
+                        <button type="submit" class="verdict-trigger verdict-reject">
+                            <span class="trigger-icon">❌</span>
+                            <span class="trigger-text">Reject</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="action-cluster">
+    <a href="/Expenses" class="action-trigger action-neutral">
+        <span class="trigger-icon">📋</span>
+        <span class="trigger-label">View All Claims</span>
+    </a>
+    <a href="/" class="action-trigger action-neutral">
+        <span class="trigger-icon">🏠</span>
+        <span class="trigger-label">Dashboard</span>
+    </a>
+</div>

@@ -1,0 +1,89 @@
+@page
+@model AddExpenseModel
+@{
+    ViewData["Title"] = "Submit Expense Claim";
+}
+
+<div class="command-nexus">
+    <h2 class="nexus-beacon">➕ Register New Expense</h2>
+    <p class="nexus-subtitle">Document your business expenditure</p>
+</div>
+
+@if (Model.SubmissionSuccessful)
+{
+    <div class="success-proclamation-zone">
+        <div class="proclamation-icon">✅</div>
+        <div class="proclamation-message">
+            <strong>Claim Registered Successfully!</strong>
+            <p>Your expense claim #@Model.GeneratedClaimIdentifier has been created and saved as a draft.</p>
+            <a href="/Expenses" class="proclamation-action-link">View all claims →</a>
+        </div>
+    </div>
+}
+
+<div class="form-scaffold-wrapper">
+    <form method="post" class="expense-registration-apparatus">
+        <div class="input-quantum-block">
+            <label for="category-selector" class="quantum-label">Expense Category</label>
+            <select id="category-selector" asp-for="SelectedCategoryIdentifier" class="quantum-selector">
+                <option value="0">-- Select Classification --</option>
+                @foreach (var taxonomy in Model.AvailableTaxonomies)
+                {
+                    <option value="@taxonomy.CategoryId">@taxonomy.CategoryName</option>
+                }
+            </select>
+        </div>
+
+        <div class="input-quantum-block">
+            <label for="amount-input" class="quantum-label">Amount (GBP £)</label>
+            <div class="currency-input-apparatus">
+                <span class="currency-sigil">£</span>
+                <input type="number" 
+                       id="amount-input" 
+                       asp-for="MonetaryQuantity" 
+                       class="quantum-numeric-field" 
+                       step="0.01" 
+                       min="0.01"
+                       placeholder="0.00" />
+            </div>
+        </div>
+
+        <div class="input-quantum-block">
+            <label for="date-picker" class="quantum-label">Transaction Date</label>
+            <input type="date" 
+                   id="date-picker" 
+                   asp-for="TransactionTimestamp" 
+                   class="quantum-date-field" />
+        </div>
+
+        <div class="input-quantum-block">
+            <label for="narrative-field" class="quantum-label">Description (Optional)</label>
+            <textarea id="narrative-field" 
+                      asp-for="NarrativeDetails" 
+                      class="quantum-text-expanse" 
+                      rows="4"
+                      placeholder="Provide additional context about this expense..."></textarea>
+        </div>
+
+        <div class="action-cluster">
+            <button type="submit" class="action-trigger action-primary">
+                <span class="trigger-icon">💾</span>
+                <span class="trigger-label">Register Claim</span>
+            </button>
+            <a href="/" class="action-trigger action-neutral">
+                <span class="trigger-icon">↩️</span>
+                <span class="trigger-label">Return to Dashboard</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="guidance-information-pod">
+    <h3 class="pod-heading">Submission Guidelines</h3>
+    <ul class="guideline-constellation">
+        <li class="guideline-particle">Select the appropriate category that best matches your expense</li>
+        <li class="guideline-particle">Enter the exact amount in British Pounds (GBP)</li>
+        <li class="guideline-particle">Specify the date when the expense was incurred</li>
+        <li class="guideline-particle">Claims are saved as drafts until you explicitly submit them for approval</li>
+    </ul>
+</div>

@@ -1,0 +1,82 @@
+@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "System Fault";
+}
+
+<div class="fault-diagnostic-chamber">
+    <div class="diagnostic-icon-emblem">⚠️</div>
+    <h1 class="diagnostic-headline">System Fault Detected</h1>
+    <p class="diagnostic-subheading">We apologize for the inconvenience</p>
+</div>
+
+<div class="fault-analysis-panel">
+    <div class="analysis-section">
+        <div class="section-label">Fault Description</div>
+        <div class="section-content fault-description-text">
+            @Model.FaultNarrative
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.RequestIdentifierToken))
+    {
+        <div class="analysis-section">
+            <div class="section-label">Request Trace Identifier</div>
+            <div class="section-content trace-identifier-mono">
+                <code>@Model.RequestIdentifierToken</code>
+            </div>
+        </div>
+    }
+
+    <div class="analysis-section">
+        <div class="section-label">Fault Coordinates</div>
+        <div class="section-content location-coordinates-text">
+            @Model.FaultCoordinates
+        </div>
+    </div>
+
+    <div class="analysis-section remediation-section">
+        <div class="section-label">Remediation Guidance</div>
+        <div class="section-content remediation-guidance-text">
+            @Model.RemediationGuidance
+        </div>
+    </div>
+</div>
+
+<div class="diagnostic-technical-disclosure">
+    <details class="technical-expansion-widget">
+        <summary class="expansion-trigger">Technical Information for Administrators</summary>
+        <div class="expansion-content">
+            <h3>Common Resolution Strategies:</h3>
+            <ul class="resolution-catalog">
+                <li>
+                    <strong>Managed Identity Issues:</strong> Ensure the App Service's User-Assigned Managed Identity 
+                    has been granted db_datareader and db_datawriter roles on the Azure SQL database.
+                </li>
+                <li>
+                    <strong>Connection Failures:</strong> Verify the connection string format includes 
+                    "Authentication=Active Directory Managed Identity" and the correct database server name.
+                </li>
+                <li>
+                    <strong>Azure OpenAI Unavailability:</strong> Confirm GenAI deployment switch was used 
+                    and the Managed Identity has "Cognitive Services OpenAI User" role.
+                </li>
+                <li>
+                    <strong>Firewall Restrictions:</strong> Check that Azure SQL firewall rules permit 
+                    connections from the App Service's outbound IP addresses.
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+<div class="action-cluster">
+    <a href="/" class="action-trigger action-primary">
+        <span class="trigger-icon">🏠</span>
+        <span class="trigger-label">Return to Dashboard</span>
+    </a>
+    <a href="javascript:window.location.reload()" class="action-trigger action-neutral">
+        <span class="trigger-icon">🔄</span>
+        <span class="trigger-label">Retry Request</span>
+    </a>
+</div>
